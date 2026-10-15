@@ -1,4 +1,3 @@
-import logging
 from typing import Any
 
 from pymongo import AsyncMongoClient
@@ -6,8 +5,9 @@ from pymongo.asynchronous.database import AsyncDatabase
 from pymongo.errors import PyMongoError
 
 from app.core.config import get_settings
+from app.core.logging import get_logger
 
-logger = logging.getLogger("uvicorn.error")
+logger = get_logger(__name__)
 
 _client: AsyncMongoClient[dict[str, Any]] | None = None
 
@@ -21,7 +21,7 @@ async def connect_mongo() -> None:
         serverSelectionTimeoutMS=5000,
     )
     await _client.admin.command("ping")
-    logger.info("MongoDB connected (database: %s)", settings.mongo_name)
+    logger.info("mongo_connected", database=settings.mongo_name)
 
 
 async def close_mongo() -> None:
@@ -29,7 +29,7 @@ async def close_mongo() -> None:
     if _client is not None:
         await _client.close()
         _client = None
-        logger.info("MongoDB connection closed")
+        logger.info("mongo_closed")
 
 
 def get_db() -> AsyncDatabase[dict[str, Any]]:

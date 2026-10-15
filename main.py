@@ -3,14 +3,18 @@ from contextlib import asynccontextmanager
 
 import uvicorn
 from fastapi import FastAPI, status
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from app.core.config import get_settings
 from app.core.db import close_mongo, connect_mongo, ping_mongo
+from app.core.logging import setup_logging
+from app.core.middleware import RequestContextMiddleware
 from app.router.router import api_router
 from app.utils.exceptions import register_exception_handlers
 from app.utils.responses import error_response, success_response
 
+setup_logging()
 settings = get_settings()
 show_docs = not settings.is_production
 
@@ -32,6 +36,16 @@ app = FastAPI(
     swagger_ui_oauth2_redirect_url="/docs/oauth2-redirect" if show_docs else None,
 )
 
+app.add_middleware(RequestContextMiddleware)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.cors_origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+    expose_headers=["X-Request-ID"],
+    max_age=600,
+)
 register_exception_handlers(app)
 app.include_router(api_router, prefix=settings.api_prefix)
 
@@ -58,4 +72,6 @@ if __name__ == "__main__":
         host=settings.host,
         port=settings.port,
         reload=not settings.is_production,
+        log_config=None,
+        access_log=False,
     )

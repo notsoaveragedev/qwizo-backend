@@ -16,6 +16,8 @@ class Settings(BaseSettings):
     api_prefix: str = "/api/v1"
     host: str = "127.0.0.1"
     port: int = 8000
+    log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR"] = "INFO"
+    cors_origins: list[str] = ["http://localhost:3000"]
 
     mongo_uri: SecretStr
     mongo_name: str = "qwizo"
