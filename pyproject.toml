@@ -1,0 +1,10 @@
+[project]
+name = "qwizo-api"
+version = "0.1.0"
+requires-python = ">=3.13"         # everyone (you, CI, the server) uses the same Python
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM"]   # errors, unused code, import order, bug patterns, modern syntax
